@@ -1,6 +1,7 @@
-import { StyleSheet, View, TouchableOpacity, Animated } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Animated, Platform } from 'react-native'
 import React, { useRef, useEffect } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { NAVIGATION_CONFIG } from '../config/AppConfig'
 
@@ -157,7 +158,7 @@ const BottomNavigation = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       {NAVIGATION_CONFIG.tabs.map((tab) => {
         const active = isActive(tab.screenName)
         const iconColor = active ? '#c96580' : '#999'
@@ -201,7 +202,7 @@ const BottomNavigation = () => {
             >
               <Icon
                 name={tab.icon}
-                size={22}
+                size={20}
                 color={iconColor}
               />
             </Animated.View>
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F4',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-    paddingBottom: 10,
+    paddingTop: 0,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

@@ -1,46 +1,116 @@
-import { StyleSheet, ActivityIndicator, View, StatusBar, Text } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { WebView } from 'react-native-webview'
-import BottomNavigation from '../components/BottomNavigation'
+import { StyleSheet, ActivityIndicator, View } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
+import BottomNavigation from '../components/BottomNavigation';
+import NotificationService from '../services/NotificationService';
+import { useNotifications } from '../hooks/useNotifications';
 
-const WebViewScreen = ({ route }) => {
-  const [loading, setLoading] = useState(true)
-  const { url } = route.params || { url: 'https://bunnieandminnie.com/' }
-  
-  // Determine header title based on screen
-  const getHeaderTitle = () => {
-    if (url.includes('login') || url.includes('authentication')) {
-      return 'Login'
+const WebViewScreen = ({ route, navigation }) => {
+  const [loading, setLoading] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState(route?.params?.url || 'https://bunnieandminnie.com/');
+  const webViewRef = useRef(null);
+  const { fcmToken } = useNotifications();
+
+  // Inject FCM token into WebView - memoized to avoid recreation
+  const injectTokenScript = useCallback((token) => {
+    if (!token) return '';
+    return `
+      (function() {
+        window.ReactNativeFCMToken = '${token}';
+        window.dispatchEvent(new CustomEvent('fcmTokenReceived', {
+          detail: { token: '${token}' }
+        }));
+        if (window.localStorage) {
+          window.localStorage.setItem('fcmToken', '${token}');
+        }
+      })();
+      true;
+    `;
+  }, []);
+
+  // Handle navigation from notifications
+  useEffect(() => {
+    const urlCallback = (url) => {
+      if (webViewRef.current) {
+        setCurrentUrl(url);
+        webViewRef.current.loadUrl(url);
+      }
+    };
+    
+    NotificationService.setUrlOpenCallback(urlCallback);
+    return () => {
+      NotificationService.setUrlOpenCallback(null);
+    };
+  }, []);
+
+  // Handle messages from WebView (for two-way communication)
+  const handleWebViewMessage = (event) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      
+      // Handle different message types from Shopify
+      if (data.type === 'userLoggedIn') {
+        // Update user info in Firestore when user logs in
+        NotificationService.updateUserInfo({
+          userId: data.userId,
+          email: data.email,
+          userName: data.userName,
+        });
+      } else if (data.type === 'userLoggedOut') {
+        // Deactivate token when user logs out
+        NotificationService.deleteToken();
+      } else if (data.type === 'requestFCMToken') {
+        // Send FCM token when Shopify requests it
+        if (fcmToken && webViewRef.current) {
+          const script = `
+            window.postMessage(JSON.stringify({
+              type: 'fcmToken',
+              token: '${fcmToken}'
+            }), '*');
+            true;
+          `;
+          webViewRef.current.injectJavaScript(script);
+        }
+      }
+    } catch (error) {
+      console.error('Error handling WebView message:', error);
     }
-    if (url.includes('contact')) {
-      return 'Contact Us'
-    }
-    return 'Bunnie&Minnie'
-  }
+  };
 
   return (
-    <SafeAreaView style={styles.container} edges={[]}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#c96580"
-        translucent={false}
-      />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{getHeaderTitle()}</Text>
-      </View>
+    <SafeAreaView style={styles.container} >
+     
       <WebView
-        key={url}
-        source={{ uri: url }}
+        ref={webViewRef}
+        key={currentUrl}
+        source={{ uri: currentUrl }}
         style={styles.webview}
         onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
+        onLoadEnd={() => {
+          setLoading(false);
+          // Inject FCM token after page loads
+          if (fcmToken && webViewRef.current) {
+            setTimeout(() => {
+              webViewRef.current?.injectJavaScript(injectTokenScript(fcmToken));
+            }, 300);
+          }
+        }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
+        onMessage={handleWebViewMessage}
+        injectedJavaScript={`
+          window.addEventListener('message', function(event) {
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(JSON.stringify(event.data));
+            }
+          });
+          true;
+        `}
       />
       {loading && (
         <View style={styles.loadingContainer}>
@@ -59,28 +129,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
-    backgroundColor: '#c96580',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
-    shadowColor: '#c96580',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
+ 
+ 
   webview: {
     flex: 1,
   },

@@ -1,8 +1,8 @@
-import { Animated, Image, StyleSheet, Text, StatusBar } from 'react-native'
-import React, { useEffect, useRef } from 'react'
-import { screenHeight, screenWidth } from '../utils/Constants'
-import { resetAndNavigate } from '../utils/NavigationUtils'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { Animated, Image, StyleSheet, Text, StatusBar } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { screenHeight, screenWidth } from '../utils/Constants';
+import { resetAndNavigate } from '../utils/NavigationUtils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Splashscreen = () => {
   // Rabbit image animations

@@ -41,7 +41,3 @@ import {
     }
   }
   
-  export function prepareNavigation() {
-    navigationRef.isReady();
-  }
-  

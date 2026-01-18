@@ -8,30 +8,47 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# FORCE static frameworks (prevents react_runtime module duplication)
+use_frameworks! :linkage => :static
 
 target 'MyApp' do
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
+    :hermes_enabled => true,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # Enable modular headers for Swift pods (required for Firebase)
-  use_modular_headers!
+  # DO NOT use global modular headers — it breaks Hermes runtime modules
+  # If Firebase needs this, we apply it selectively below
 
   post_install do |installer|
     react_native_post_install(
       installer,
       config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :mac_catalyst_enabled => false
     )
+
+    # Only apply modular headers to Firebase pods if needed
+    installer.pods_project.targets.each do |target|
+      if target.name.start_with?('Firebase') ||
+         target.name.start_with?('GoogleUtilities') ||
+         target.name.start_with?('PromisesObjC')
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        end
+      end
+    end
+
+    # Fix duplicate react_runtime module bug
+    installer.pods_project.targets.each do |target|
+      if target.name == 'React-RuntimeHermes'
+        target.build_configurations.each do |config|
+          config.build_settings['DEFINES_MODULE'] = 'NO'
+        end
+      end
+    end
   end
 end

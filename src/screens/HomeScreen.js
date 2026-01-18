@@ -1,24 +1,18 @@
-import { StyleSheet, ActivityIndicator, View, StatusBar, Text } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { WebView } from 'react-native-webview'
-import BottomNavigation from '../components/BottomNavigation'
-import { URLS } from '../config/AppConfig'
+import { StyleSheet, ActivityIndicator, View } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
+import BottomNavigation from '../components/BottomNavigation';
+import { URLS } from '../config/AppConfig';
 
 const HomeScreen = ({ route }) => {
   const [loading, setLoading] = useState(true)
   const url = route?.params?.url || URLS.HOME
 
   return (
-    <SafeAreaView style={styles.container} edges={[]}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#c96580"
-        translucent={false}
-      />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Bunnie&Minnie</Text>
-      </View>
+    <SafeAreaView style={styles.container} >
+      
+      
       <WebView
         key={url}
         source={{ uri: url }}
@@ -49,28 +43,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
-    backgroundColor: '#c96580',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
-    shadowColor: '#c96580',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
+  
+ 
   webview: {
     flex: 1,
   },

@@ -1,15 +1,57 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import Navigation from './src/navigation/Navigation'
+import React, { useEffect } from 'react';
+import messaging from '@react-native-firebase/messaging';
+import Navigation from './src/navigation/Navigation';
+import NotificationService from './src/services/NotificationService';
+import { waitForFirebase } from './src/utils/FirebaseUtils';
+import { navigationRef } from './src/utils/NavigationUtils';
 
 const App = () => {
-  return (
-    <Navigation/>
-  )
-}
+  useEffect(() => {
+    // Set background message handler (must be set before app initialization)
+    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      console.log('Message handled in the background!', remoteMessage);
+    });
 
-export default App
+    const initNotifications = async () => {
+      try {
+        // Wait for Firebase initialization (with timeout)
+        const isReady = await Promise.race([
+          waitForFirebase(),
+          new Promise(resolve => setTimeout(() => resolve(false), 5000))
+        ]);
+        
+        if (!isReady) {
+          console.warn('Firebase initialization check timed out, continuing anyway...');
+        }
 
-const styles = StyleSheet.create({
-  
-})
+        // Set up navigation callbacks for notifications
+        NotificationService.setNavigationCallback((screen, data) => {
+          if (navigationRef.isReady()) {
+            navigationRef.navigate(screen, data);
+          }
+        });
+
+        NotificationService.setUrlOpenCallback((url, data) => {
+          if (navigationRef.isReady()) {
+            navigationRef.navigate('WebViewScreen', { url, ...data });
+          }
+        });
+
+        // Initialize notification service
+        await NotificationService.initialize();
+      } catch (error) {
+        console.error('Error initializing notifications:', error);
+      }
+    };
+
+    initNotifications();
+
+    return () => {
+      NotificationService.cleanup();
+    };
+  }, []);
+
+  return <Navigation />;
+};
+
+export default App;

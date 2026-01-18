@@ -37,7 +37,10 @@ const Navigation = () => {
           name="ContactScreen" 
           component={WebViewScreen}
         />
-       
+        <Stack.Screen 
+          name="WebViewScreen" 
+          component={WebViewScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
