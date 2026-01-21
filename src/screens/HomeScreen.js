@@ -10,9 +10,7 @@ const HomeScreen = ({ route }) => {
   const url = route?.params?.url || URLS.HOME
 
   return (
-    <SafeAreaView style={styles.container} >
-      
-      
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <WebView
         key={url}
         source={{ uri: url }}

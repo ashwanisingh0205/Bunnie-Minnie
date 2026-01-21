@@ -15,14 +15,16 @@ const WebViewScreen = ({ route, navigation }) => {
   // Inject FCM token into WebView - memoized to avoid recreation
   const injectTokenScript = useCallback((token) => {
     if (!token) return '';
+    // Escape token to prevent XSS if token contains special characters
+    const escapedToken = token.replace(/'/g, "\\'");
     return `
       (function() {
-        window.ReactNativeFCMToken = '${token}';
+        window.ReactNativeFCMToken = '${escapedToken}';
         window.dispatchEvent(new CustomEvent('fcmTokenReceived', {
-          detail: { token: '${token}' }
+          detail: { token: '${escapedToken}' }
         }));
         if (window.localStorage) {
-          window.localStorage.setItem('fcmToken', '${token}');
+          window.localStorage.setItem('fcmToken', '${escapedToken}');
         }
       })();
       true;
@@ -32,10 +34,8 @@ const WebViewScreen = ({ route, navigation }) => {
   // Handle navigation from notifications
   useEffect(() => {
     const urlCallback = (url) => {
-      if (webViewRef.current) {
-        setCurrentUrl(url);
-        webViewRef.current.loadUrl(url);
-      }
+      // Update URL state - WebView will re-render with new source due to key prop
+      setCurrentUrl(url);
     };
     
     NotificationService.setUrlOpenCallback(urlCallback);
@@ -63,11 +63,16 @@ const WebViewScreen = ({ route, navigation }) => {
       } else if (data.type === 'requestFCMToken') {
         // Send FCM token when Shopify requests it
         if (fcmToken && webViewRef.current) {
+          const escapedToken = fcmToken.replace(/'/g, "\\'");
           const script = `
-            window.postMessage(JSON.stringify({
-              type: 'fcmToken',
-              token: '${fcmToken}'
-            }), '*');
+            (function() {
+              if (window.postMessage) {
+                window.postMessage(JSON.stringify({
+                  type: 'fcmToken',
+                  token: '${escapedToken}'
+                }), '*');
+              }
+            })();
             true;
           `;
           webViewRef.current.injectJavaScript(script);
@@ -79,8 +84,7 @@ const WebViewScreen = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} >
-     
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <WebView
         ref={webViewRef}
         key={currentUrl}
@@ -89,11 +93,17 @@ const WebViewScreen = ({ route, navigation }) => {
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => {
           setLoading(false);
-          // Inject FCM token after page loads
+          // Inject FCM token after page loads (with delay to ensure DOM is ready)
           if (fcmToken && webViewRef.current) {
             setTimeout(() => {
               webViewRef.current?.injectJavaScript(injectTokenScript(fcmToken));
             }, 300);
+          }
+        }}
+        onNavigationStateChange={(navState) => {
+          // Update current URL when navigation changes (for internal page navigation)
+          if (navState.url !== currentUrl) {
+            setCurrentUrl(navState.url);
           }
         }}
         javaScriptEnabled={true}
