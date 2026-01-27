@@ -32,12 +32,5 @@ export const NAVIGATION_CONFIG = {
       label: 'Contact',
       route: URLS.CONTACT,
     },
-    {
-      id: 'login',
-      screenName: 'LoginScreen',
-      icon: 'person',
-      label: 'Login',
-      route: URLS.LOGIN,
-    },
   ],
 };

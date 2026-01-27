@@ -1,16 +1,21 @@
 import React, { useEffect } from 'react';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging } from '@react-native-firebase/messaging';
 import Navigation from './src/navigation/Navigation';
 import NotificationService from './src/services/NotificationService';
 import { waitForFirebase } from './src/utils/FirebaseUtils';
 import { navigationRef } from './src/utils/NavigationUtils';
 
+// Set background message handler (must be set before app initialization)
+// In React Native Firebase modular API, setBackgroundMessageHandler is a method on the messaging instance
+const app = getApp();
+const messaging = getMessaging(app);
+messaging.setBackgroundMessageHandler(async (remoteMessage) => {
+  console.log('Message handled in the background!', remoteMessage);
+});
+
 const App = () => {
   useEffect(() => {
-    // Set background message handler (must be set before app initialization)
-    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
 
     const initNotifications = async () => {
       try {

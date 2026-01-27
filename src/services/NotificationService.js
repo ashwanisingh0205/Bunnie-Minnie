@@ -1,5 +1,23 @@
-import messaging from '@react-native-firebase/messaging';
-import firestore from '@react-native-firebase/firestore';
+import { getApp } from '@react-native-firebase/app';
+import { 
+  getMessaging, 
+  requestPermission as requestMessagingPermission,
+  AuthorizationStatus,
+  onTokenRefresh,
+  onMessage,
+  getInitialNotification,
+  onNotificationOpenedApp,
+  getToken,
+  deleteToken
+} from '@react-native-firebase/messaging';
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  updateDoc,
+  serverTimestamp
+} from '@react-native-firebase/firestore';
 import { Platform, PermissionsAndroid, Alert } from 'react-native';
 import { waitForFirebase } from '../utils/FirebaseUtils';
 
@@ -10,6 +28,19 @@ class NotificationService {
     this.tokenRefreshListener = null;
     this.tokenRefreshCallbacks = [];
     this.deviceId = null;
+    this.app = null;
+    this.messaging = null;
+    this.firestore = null;
+  }
+
+  // Initialize Firebase instances
+  _initFirebase() {
+    if (!this.app) {
+      this.app = getApp();
+      this.messaging = getMessaging(this.app);
+      this.firestore = getFirestore(this.app);
+    }
+    return { app: this.app, messaging: this.messaging, firestore: this.firestore };
   }
 
   // Request notification permissions
@@ -34,10 +65,11 @@ class NotificationService {
     } else {
       // iOS - try to use Firebase messaging directly
       try {
-        const authStatus = await messaging().requestPermission();
+        const { messaging } = this._initFirebase();
+        const authStatus = await requestMessagingPermission(messaging);
         const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          authStatus === AuthorizationStatus.AUTHORIZED ||
+          authStatus === AuthorizationStatus.PROVISIONAL;
         return enabled;
       } catch (error) {
         const errorMsg = error?.message || String(error);
@@ -48,10 +80,11 @@ class NotificationService {
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           try {
-            const authStatus = await messaging().requestPermission();
+            const { messaging } = this._initFirebase();
+            const authStatus = await requestMessagingPermission(messaging);
             const enabled =
-              authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-              authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+              authStatus === AuthorizationStatus.AUTHORIZED ||
+              authStatus === AuthorizationStatus.PROVISIONAL;
             return enabled;
           } catch (retryError) {
             console.error('Error requesting permission after retry:', retryError?.message);
@@ -66,21 +99,16 @@ class NotificationService {
   }
 
   // Register device for remote messages (iOS only) - internal helper
+  // Note: Auto-registration is enabled by default in React Native Firebase
+  // This method is kept for compatibility but does nothing when auto-registration is enabled
   async _registerDeviceIfNeeded() {
     if (Platform.OS !== 'ios') return true;
     
-    try {
-      await messaging().registerDeviceForRemoteMessages();
-      return true;
-    } catch (error) {
-      const errorMsg = error?.message || String(error);
-      // Ignore if already registered
-      if (errorMsg.includes('already registered') || errorMsg.includes('already been registered')) {
-        return true;
-      }
-      console.warn('Device registration warning:', errorMsg);
-      return false;
-    }
+    // Auto-registration is enabled by default, so no manual registration needed
+    // Only call registerDeviceForRemoteMessages if auto-registration is disabled
+    // in firebase.json via 'messaging_ios_auto_register_for_remote_messages: false'
+    // For now, we skip manual registration since it's not required
+    return true;
   }
 
   // Get FCM token
@@ -90,7 +118,8 @@ class NotificationService {
       await this._registerDeviceIfNeeded();
       
       if (!this.fcmToken) {
-        this.fcmToken = await messaging().getToken();
+        const { messaging } = this._initFirebase();
+        this.fcmToken = await getToken(messaging);
       }
       return this.fcmToken;
     } catch (error) {
@@ -100,7 +129,8 @@ class NotificationService {
       if (errorMsg.includes('must be registered') || errorMsg.includes('registerDeviceForRemoteMessages')) {
         if (await this._registerDeviceIfNeeded()) {
           try {
-            this.fcmToken = await messaging().getToken();
+            const { messaging } = this._initFirebase();
+            this.fcmToken = await getToken(messaging);
             return this.fcmToken;
           } catch (retryError) {
             console.error('Error getting FCM token after registration:', retryError?.message);
@@ -117,7 +147,8 @@ class NotificationService {
         
         try {
           await this._registerDeviceIfNeeded();
-          this.fcmToken = await messaging().getToken();
+          const { messaging } = this._initFirebase();
+          this.fcmToken = await getToken(messaging);
           return this.fcmToken;
         } catch (retryError) {
           console.error('Error getting FCM token after retry:', retryError?.message);
@@ -173,8 +204,11 @@ class NotificationService {
         return false;
       }
 
+      // Initialize Firebase instances
+      const { messaging } = this._initFirebase();
+
       // Listen for token refresh
-      this.tokenRefreshListener = messaging().onTokenRefresh(async (newToken) => {
+      this.tokenRefreshListener = onTokenRefresh(messaging, async (newToken) => {
         console.log('FCM Token refreshed:', newToken);
         this.fcmToken = newToken;
         await this.onTokenReceived(newToken);
@@ -185,7 +219,7 @@ class NotificationService {
       });
 
       // Handle foreground messages
-      this.messageListener = messaging().onMessage(async (remoteMessage) => {
+      this.messageListener = onMessage(messaging, async (remoteMessage) => {
         console.log('Foreground message received:', remoteMessage);
         this.handleForegroundMessage(remoteMessage);
       });
@@ -193,8 +227,7 @@ class NotificationService {
       // Background message handler is set in App.tsx to avoid duplication
 
       // Handle notification opened (app was in background/quit state)
-      messaging()
-        .getInitialNotification()
+      getInitialNotification(messaging)
         .then((remoteMessage) => {
           if (remoteMessage) {
             console.log('Notification opened app from quit state:', remoteMessage);
@@ -203,7 +236,7 @@ class NotificationService {
         });
 
       // Handle notification opened (app was in background)
-      messaging().onNotificationOpenedApp((remoteMessage) => {
+      onNotificationOpenedApp(messaging, (remoteMessage) => {
         console.log('Notification opened app from background:', remoteMessage);
         this.handleNotificationOpened(remoteMessage);
       });
@@ -296,9 +329,11 @@ class NotificationService {
   // Save FCM token to Firestore
   async saveTokenToFirestore(token, userInfo = {}) {
     try {
+      const { firestore } = this._initFirebase();
+      
       // Get device ID (you can use react-native-device-info for better device identification)
       const deviceId = this.deviceId || Platform.OS;
-      const timestamp = firestore.FieldValue.serverTimestamp();
+      const timestamp = serverTimestamp();
       
       const tokenData = {
         fcmToken: token,
@@ -313,9 +348,9 @@ class NotificationService {
 
       // Save to Firestore collection 'fcm_tokens'
       // Using deviceId as document ID to avoid duplicates
-      const docRef = firestore().collection('fcm_tokens').doc(deviceId);
+      const docRef = doc(collection(firestore, 'fcm_tokens'), deviceId);
       
-      await docRef.set(tokenData, { merge: true });
+      await setDoc(docRef, tokenData, { merge: true });
       
       console.log('FCM token saved to Firestore:', deviceId);
       return true;
@@ -333,12 +368,13 @@ class NotificationService {
         return false;
       }
 
+      const { firestore } = this._initFirebase();
       const deviceId = this.deviceId || Platform.OS;
-      const docRef = firestore().collection('fcm_tokens').doc(deviceId);
+      const docRef = doc(collection(firestore, 'fcm_tokens'), deviceId);
       
-      await docRef.update({
+      await updateDoc(docRef, {
         ...userInfo,
-        updatedAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
       
       console.log('User info updated in Firestore');
@@ -352,12 +388,13 @@ class NotificationService {
   // Delete token from Firestore (on logout)
   async deleteTokenFromFirestore() {
     try {
+      const { firestore } = this._initFirebase();
       const deviceId = this.deviceId || Platform.OS;
-      const docRef = firestore().collection('fcm_tokens').doc(deviceId);
+      const docRef = doc(collection(firestore, 'fcm_tokens'), deviceId);
       
-      await docRef.update({
+      await updateDoc(docRef, {
         isActive: false,
-        updatedAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
       
       console.log('FCM token deactivated in Firestore');
@@ -386,7 +423,8 @@ class NotificationService {
       await this.deleteTokenFromFirestore();
       
       // Then delete from FCM
-      await messaging().deleteToken();
+      const { messaging } = this._initFirebase();
+      await deleteToken(messaging);
       this.fcmToken = null;
       console.log('FCM token deleted');
     } catch (error) {

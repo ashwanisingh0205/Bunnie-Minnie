@@ -1,17 +1,5 @@
-// Use default import for compatibility, but try new API if available
-import firebaseApp from '@react-native-firebase/app';
-
-// Try to use new modular API if available
-let getApp, getApps;
-try {
-  const modularApp = require('@react-native-firebase/app');
-  getApp = modularApp.getApp || (() => firebaseApp.app());
-  getApps = modularApp.getApps || (() => firebaseApp.apps || []);
-} catch (e) {
-  // Fallback to default API
-  getApp = () => firebaseApp.app();
-  getApps = () => firebaseApp.apps || [];
-}
+// Use modular API
+import { getApp, getApps } from '@react-native-firebase/app';
 
 /**
  * Wait for Firebase to be initialized
@@ -32,16 +20,6 @@ export const waitForFirebase = async (maxAttempts = 20, delay = 500) => {
         return true;
       }
       
-      // Alternative: try accessing app directly (for older API)
-      try {
-        const app = firebaseApp.app();
-        if (app) {
-          console.log('✅ Firebase is ready (legacy API):', app.name || '[DEFAULT]');
-          return true;
-        }
-      } catch (e) {
-        // Not ready yet
-      }
       
       // If no apps, wait and retry
       if (i < maxAttempts - 1) {
@@ -90,12 +68,6 @@ export const waitForFirebase = async (maxAttempts = 20, delay = 500) => {
       return true;
     }
     
-    // Try legacy API
-    const app = firebaseApp.app();
-    if (app) {
-      console.log('✅ Firebase initialized on final attempt (legacy API)');
-      return true;
-    }
   } catch (finalError) {
     console.error('Final Firebase check failed:', finalError?.message);
     console.error('⚠️  Firebase may not be properly configured. Please:');
@@ -116,9 +88,6 @@ export const isFirebaseReady = () => {
     if (apps && apps.length > 0) {
       return true;
     }
-    // Try legacy API
-    const app = firebaseApp.app();
-    return app !== null && app !== undefined;
   } catch (error) {
     return false;
   }
