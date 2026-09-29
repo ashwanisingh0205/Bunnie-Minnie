@@ -1,0 +1,283 @@
+account
+	N/A	1 mo 15 days #3 - feature/pii-log-masking	34 sec	
+-
+additionalservices
+	N/A	1 mo 15 days #1 - feature/codemigration	26 sec	
+-
+addonspost
+	21 hr #44 - feature/POD-37190_abandoned-cart	N/A	36 min	
+-
+addonspost-6eskai
+	1 mo 7 days #3 - feature/skai-config-changes	1 mo 7 days #2	13 min	
+-
+agent
+	N/A	1 mo 15 days #1 - feature/pii-log-masking	20 sec	
+-
+agui-agents-runtime
+	11 days #15 - feature/pdpconfig	15 days #11 - feature/pdpconfig	13 min	
+-
+amazon-account-linking
+	1 mo 15 days #1 - main	N/A	7 min 26 sec	
+-
+amazon-sqsservice
+	N/A	1 mo 15 days #1 - develop_v1	24 sec	
+-
+amp-email-api
+	1 mo 9 days #13 - feature/lowestFare_1	N/A	3 min 28 sec	
+-
+appintegrity
+	1 mo 15 days #1 - feature-dev	N/A	5 min 13 sec	
+-
+boardingpass6e
+	N/A	1 mo 15 days #1 - feature/pii-log-masking	42 sec	
+-
+booking-widget-search-engine
+	11 days #26 - feature/develop	N/A	21 min	
+-
+bookingwidgets
+	25 days #18 - feature/dev	N/A	5 min 54 sec	
+-
+brms-backend
+	4 days 19 hr #39 - feature/agent	4 days 20 hr #36 - feature/agent	4 min 29 sec	
+-
+cargo
+	N/A	1 mo 15 days #1 - feature/POD-37253_Dev	25 sec	
+-
+checkin
+	4 days 22 hr #66 - features/codeshare/pod-38268	5 days 18 hr #64 - features/pii_email_phone/boardingpass	16 min	
+-
+checkin-eventprocessor
+	N/A	1 mo 15 days #1 - feature/dlqissue	32 sec	
+-
+checkin6e
+	N/A	1 mo 15 days #1 - features/hub_spoke/POD-36771	34 sec	
+-
+compensation
+	12 days #7 - features/form_validation/POD-36122	N/A	15 min	
+-
+configevolution
+	24 days #5 - feature/develop_QAUAT	1 mo 15 days #1 - feature/configevolution/CCChange	31 min	
+-
+configevolution-ui
+	5 days 20 hr #12 - feature/ConfigEvolutionUI/master	6 days 0 hr #9 - releases/configevolution-ui/1.0.3	5 min 44 sec	
+-
+contactus-ms
+	N/A	1 mo 15 days #1 - feature/pii-log-masking	26 sec	
+-
+contextual-messages
+	25 days #11 - feature/pod-38324	25 days #12 - feature/pod-37200	13 min	
+-
+couponreversal
+	N/A	1 mo 15 days #1 - features/couponreversal/logger	31 sec	
+-
+cron-abandoned-payment
+	3 days 21 hr #5 - feature/abandoned-analyzer-local-queue	N/A	7 min 27 sec	
+-
+custombundles
+	19 days #7 - feature/hotfix-coockies	19 days #9 - bug/POD-38676-final	3 min 48 sec	
+-
+custombundles-6eskai
+	1 mo 7 days #2 - feature/skai-config-changes	N/A	5 min 29 sec	
+-
+document-generator
+	N/A	1 mo 15 days #1 - develop-dg	31 sec	
+-
+dotrezapi
+	N/A	1 mo 15 days #1 - feature/pii-log-masking	32 sec	
+-
+ewallet
+	22 days #16 - releases/Ewallet/1.0.5	N/A	5 min 55 sec	
+-
+ewallettransaction
+	22 days #6 - releases/EWalletTransaction/1.0.3	24 days #4 - feature/removeCiamToken	5 min 55 sec	
+-
+favouritepassenger
+	N/A	1 mo 15 days #1 - feature/CodeMigration	59 sec	
+-
+flightsearch
+	21 hr #36 - features/develop-qa	N/A	33 min	
+-
+flightstatus
+	11 days #6 - feature/develop	N/A	20 hr	
+-
+flightupgrade
+	N/A	1 mo 5 days #2 - feature/onepageupgrade_nonprod	11 sec	
+-
+flightupgrade-6eskai
+	1 mo 7 days #2 - feature/skai-config-changes	N/A	17 min	
+-
+flightupgradeibc
+	5 days 17 hr #75 - feature/POD-38946_39003	N/A	6 min 25 sec	
+-
+gdpr
+	25 days #15 - releases/gdpr/1.0.10	N/A	11 min	
+-
+gst-view-ncs-invoice-retrieval-ms
+	N/A	1 mo 15 days #1	1.1 sec	
+-
+ibccalculator-ms
+	N/A	1 mo 15 days #1 - releases/IBCCalculator/1.0.2	51 sec	
+-
+ibcprofile
+	6 days 17 hr #85 - feature/dev-refactor	N/A	15 hr	
+-
+insuranceservice
+	N/A	N/A	N/A	
+-
+investorrelation
+	N/A	1 mo 15 days #1 - feature/POD-37253_Dev	27 sec	
+-
+itinerary
+	19 hr #26 - feature/bookingsretrievestateless	3 days 18 hr #23 - feature/bookingsretrievestateless	6 min 35 sec	
+-
+itinerary-save
+	5 days 0 hr #33 - develop_itinerarysave_UAT_V2	N/A	13 min	
+-
+journey-consumer
+	23 hr #10 - test2/abandon-cart	N/A	8 min 11 sec	
+-
+journey-producer
+	3 days 19 hr #7 - test/abandoncart/singlecontroller	N/A	45 min	
+-
+journey-resume
+	3 days 21 hr #11 - feature/abandon_cart/without_package	N/A	8 min 9 sec	
+-
+knowledge-graph-mcp
+	7 days 0 hr #15 - DEV_1	10 days #11 - DEV_1	7 min 10 sec	
+-
+knowledge-graph-visualization
+	27 days #22 - feature/backend	N/A	7 min 18 sec	
+-
+lastminutedeals
+	N/A	1 mo 15 days #1 - Feature/init	45 sec	
+-
+login
+	27 days #17 - feature/deletesupertoken/1.0.9	27 days #16 - feature/deletesupertoken/1.0.9	20 hr	
+-
+lowfare
+	N/A	1 mo 15 days #1 - feature/pod-37200	14 min	
+-
+lowfarecalendar
+	22 hr #4 - feature/sync-lock	23 hr #3 - feature/sync-lock	13 min	
+-
+lowfarecalendar-worker
+	1 mo 10 days #7 - feature/sync-lock	1 mo 11 days #3 - feature/sync-lock	31 min	
+-
+loyalty
+	3 days 21 hr #56 - feature/release_24_v_1.0.42_38702	N/A	9 min 34 sec	
+-
+loyalty-event-consumer
+	N/A	N/A	N/A	
+-
+loyalty-event-service
+	N/A	N/A	N/A	
+-
+loyalty-retro
+	1 mo 9 days #2 - feature/develop_cleanup_28072026	18 days #6 - releases/loyalty-retro/1.0.0	1 hr 13 min	
+-
+mybookings
+	N/A	N/A	N/A	
+-
+myprofile
+	24 days #6 - hotfix/api_version_check	1 mo 10 days #2 - feature/pod-34688	37 min	
+-
+ordersearch
+	N/A	N/A	N/A	
+-
+partneroffer
+	N/A	N/A	N/A	
+-
+passenger-documents
+	25 days #7 - features/POD-38083	26 days #6 - features/POD-38083	7 min 59 sec	
+-
+passenger-health
+	N/A	N/A	N/A	
+-
+passengercontact6e
+	N/A	N/A	N/A	
+-
+passengers-get
+	17 days #6 - releases/passengersget/1.0.30	N/A	6 min 53 sec	
+-
+passengers-post
+	19 hr #23 - feature/POD-39498	25 min #25 - feature/POD-39498	35 min	
+-
+passengers-ssr
+	4 days 20 hr #14 - uat/passengersssr/1.0.47	N/A	9 min 20 sec	
+-
+passengers-ssr-6eskai
+	1 mo 7 days #1 - feature/skai-config-changes	N/A	17 min	
+-
+payment-initiator
+	N/A	N/A	N/A	
+-
+pdp-agent
+	10 days #20 - feature/pdp_agent_context	N/A	20 min	
+-
+planbdbaccess-skyplus
+	N/A	1 mo 9 days #3 - feature/POD-37897-sonar-fixes	5 min 54 sec	
+-
+planbeligibilty-skyplus
+	N/A	1 mo 11 days #1 - releases/planbeligibilty/1.0.12	2 min 56 sec	
+-
+planbsave-skyplus
+	5 days 17 hr #7 - feature/POD-38791	1 mo 4 days #3 - releases/planbsave/1.0.7	7 min 38 sec	
+-
+planbselfservice
+	17 hr #20 - feature/POD-38888_extended	N/A	17 hr	
+-
+postpayment
+	21 hr #18 - qa/postpayment-46	N/A	38 min	
+-
+postpayment-6eskai
+	1 mo 7 days #1 - feature/skai-config-changes	N/A	15 min	
+-
+prepayment
+	6 days 0 hr #32 - qa/prepayment-50	11 days #29 - qa/prepayment-50	24 min	
+-
+prepayment-6eskai
+	28 days #2 - feature/skai-config-changes-uat	N/A	6 min 20 sec	
+-
+refundclaim-ms
+	12 days #6 - features/form_validation/POD-36122	25 days #4 - features/neft_enhanc	14 min	
+-
+refundstatustracker
+	N/A	N/A	N/A	
+-
+reviewsummary
+	1 day 0 hr #18 - uat/reviewsummary/1.0.48	N/A	11 min	
+-
+reward-skyplus
+	N/A	N/A	N/A	
+-
+scratchcard
+	19 days #13 - feature/setLimitforCoupons	N/A	17 min	
+-
+seatselection
+	25 days #5 - qa/seatselection/1.0.30	26 days #4 - qa/seatselection/1.0.30	1 hr 43 min	
+-
+seatsell
+	21 hr #4 - feature/abandoned_cart	1 mo 3 days #1 - feature/abandoned_cart	37 min	
+-
+seatsell-6eskai
+	1 mo 7 days #1 - feature/skai-config-changes	N/A	13 min	
+-
+session
+	N/A	N/A	N/A	
+-
+splitpnr
+	19 days #2 - features/POD-38626	N/A	7 min 18 sec	
+-
+splitpnr-kafka
+	N/A	N/A	N/A	
+-
+sso
+	10 days #10 - features/sso-uat	10 days #8 - features/sso-uat	8 min 55 sec	
+-
+upfrontengine
+	6 days 17 hr #14 - feature/POD-32631	N/A	8 min 12 sec	
+-
+web-check-in-agent
+	5 days 18 hr #24 - feature/precheckin-work	N/A	6 min 9 sec	
+-
+web-check-in-agent-consumer
